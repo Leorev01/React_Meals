@@ -62,7 +62,7 @@ const Modal = forwardRef(function Modal({ items, addItem, removeItem }, ref) {
             <Checkout total={total}/>
         </form>}
         <div className="modal-actions">
-          <button className="text-button" onClick={() => dialog.current.close()}>
+          <button className="text-button" onClick={() => (dialog.current.close(), setCheckout(false))}>
             Close
           </button>
           {checkout && <button className="button" type="submit" form="form">Submit Order</button>}
