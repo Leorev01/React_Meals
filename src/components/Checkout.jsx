@@ -1,4 +1,6 @@
-export default function Checkout({total}){
+import ErrorComponent from "./ErrorComponent";
+
+export default function Checkout({total, errormsg}){
 
 
     return(
@@ -17,6 +19,7 @@ export default function Checkout({total}){
                 <label htmlFor="city">City</label>
                 <input type="text" id="city" required/>
             </div>
+            {errormsg.hasError && <ErrorComponent message={errormsg.message}/>}
         </>
     )
 }

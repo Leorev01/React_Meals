@@ -10,11 +10,18 @@ const Modal = forwardRef(function Modal({ items, addItem, removeItem }, ref) {
 
   const [total, setTotal] = useState(0);
   const [checkout, setCheckout] = useState(false);
+  const [error, setError] = useState({
+    hasError: false,
+    message: '',
+  });
 
   function goToCheckout(){
     setCheckout(true);
   }
-  async function createOrder(){
+  async function createOrder(event){
+    if(error){
+      event.preventDefault();
+    }
     const order = {
         customer: {
             name: formRef.current.name.value,
@@ -29,6 +36,7 @@ const Modal = forwardRef(function Modal({ items, addItem, removeItem }, ref) {
 
     console.log(order);
     try{
+        setError({hasError: false, message: ''});
         const result = await fetch('http://localhost:3000/orders', {
             method: 'POST',
             body: JSON.stringify({order: order}),
@@ -45,6 +53,7 @@ const Modal = forwardRef(function Modal({ items, addItem, removeItem }, ref) {
     }
     catch(error){
         console.log(error);
+        setError({hasError: true, message: 'Unable to process order'});
     }
     
 } 
@@ -59,7 +68,7 @@ const Modal = forwardRef(function Modal({ items, addItem, removeItem }, ref) {
     <dialog className="modal" ref={dialog}>
       {!checkout && <Cart items={items} addItem={addItem} removeItem={removeItem} setTotal={setTotal} total={total}/>}
       {checkout && <form id="form" className="control" ref={formRef} onSubmit={createOrder}>
-            <Checkout total={total}/>
+            <Checkout total={total} errormsg={error}/>
         </form>}
         <div className="modal-actions">
           <button className="text-button" onClick={() => (dialog.current.close(), setCheckout(false))}>
