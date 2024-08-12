@@ -33,9 +33,13 @@ function App() {
     });
   }
 
+  function clearItems() {
+    setItems([]);
+  }
+
   return (
     <>
-    <Modal items={items} ref={dialog} addItem={addItem} removeItem={removeItem}/>
+    <Modal items={items} ref={dialog} addItem={addItem} removeItem={removeItem} clearItems={clearItems}/>
     <Header items={items} showModal={() => dialog.current.open()}/>
       <Meals addItem={addItem}/>
     </>

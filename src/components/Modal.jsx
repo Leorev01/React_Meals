@@ -3,8 +3,9 @@ import { createPortal } from 'react-dom';
 import { nanoid } from 'nanoid';
 import Cart from "./Cart";
 import Checkout from "./Checkout";
+import OrderStatus from './OrderStatus';
 
-const Modal = forwardRef(function Modal({ items, addItem, removeItem }, ref) {
+const Modal = forwardRef(function Modal({ items, addItem, removeItem, clearItems }, ref) {
   const dialog = useRef();
   const formRef = useRef();
 
@@ -14,14 +15,15 @@ const Modal = forwardRef(function Modal({ items, addItem, removeItem }, ref) {
     hasError: false,
     message: '',
   });
+  const [orderCompleted, setOrderCompleted] = useState(false);
 
   function goToCheckout(){
     setCheckout(true);
   }
   async function createOrder(event){
-    if(error){
-      event.preventDefault();
-    }
+
+    event.preventDefault();
+    
     const order = {
         customer: {
             name: formRef.current.name.value,
@@ -35,8 +37,8 @@ const Modal = forwardRef(function Modal({ items, addItem, removeItem }, ref) {
     }
 
     console.log(order);
+    setError({hasError: false, message: ''});
     try{
-        setError({hasError: false, message: ''});
         const result = await fetch('http://localhost:3000/orders', {
             method: 'POST',
             body: JSON.stringify({order: order}),
@@ -48,6 +50,8 @@ const Modal = forwardRef(function Modal({ items, addItem, removeItem }, ref) {
         if(!result.ok){
             throw new Error("Unable to process order");
         }
+        setOrderCompleted(true);
+        clearItems();
         const data = await result.json();
         return data.message;
     }
@@ -66,18 +70,19 @@ const Modal = forwardRef(function Modal({ items, addItem, removeItem }, ref) {
 
   return createPortal(
     <dialog className="modal" ref={dialog}>
-      {!checkout && <Cart items={items} addItem={addItem} removeItem={removeItem} setTotal={setTotal} total={total}/>}
-      {checkout && <form id="form" className="control" ref={formRef} onSubmit={createOrder}>
+      {orderCompleted && <OrderStatus title="Order Completed" message="Thank you for your order!"/>}
+      {(!orderCompleted && !checkout) && <Cart items={items} addItem={addItem} removeItem={removeItem} setTotal={setTotal} total={total}/>}
+      {(!orderCompleted && checkout) && <form id="form" className="control" ref={formRef} onSubmit={createOrder}>
             <Checkout total={total} errormsg={error}/>
         </form>}
         <div className="modal-actions">
-          <button className="text-button" onClick={() => (dialog.current.close(), setCheckout(false))}>
+          <button className="text-button" onClick={() => (dialog.current.close(), setCheckout(false), setOrderCompleted(false))}>
             Close
           </button>
-          {checkout && <button className="button" type="submit" form="form">Submit Order</button>}
+          {(checkout && !orderCompleted) && <button className="button" type="submit" form="form">Submit Order</button>}
           {(!checkout && items.length===0) ?
           <button className="button" disabled>Checkout</button>:
-          (!checkout) && <button className="button" onClick={goToCheckout}>Checkout</button>}
+          (!checkout && !orderCompleted) && <button className="button" onClick={goToCheckout}>Checkout</button>}
         </div>
     </dialog>,
     document.getElementById('modal')
