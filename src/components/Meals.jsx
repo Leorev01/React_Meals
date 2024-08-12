@@ -2,11 +2,14 @@ import MealItem from "./MealItem";
 import { nanoid } from "nanoid";
 import {useState, useEffect} from "react";
 import ErrorComponent from "./ErrorComponent";
+import {useCart} from "../contexts/CartContext";
 
-export default function Meals({addItem}){
+export default function Meals(){
 
     const [meals, setMeals] = useState([]);
     const [error, setError] = useState(false);
+
+    const {addItem} = useCart();
 
     useEffect(()=>{
         async function getMeals(){

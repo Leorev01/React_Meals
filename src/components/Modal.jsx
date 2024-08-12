@@ -4,8 +4,10 @@ import { nanoid } from 'nanoid';
 import Cart from "./Cart";
 import Checkout from "./Checkout";
 import OrderStatus from './OrderStatus';
+import {useCart} from "../contexts/CartContext";
 
-const Modal = forwardRef(function Modal({ items, addItem, removeItem, clearItems }, ref) {
+const Modal = forwardRef(function Modal(props, ref) {
+  const { items, addItem, removeItem, clearItems } = useCart();
   const dialog = useRef();
   const formRef = useRef();
 

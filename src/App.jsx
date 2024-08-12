@@ -1,48 +1,18 @@
+import React, { useRef } from "react";
 import Header from "./components/Header";
 import Meals from "./components/Meals";
 import Modal from "./components/Modal";
-import {useRef, useState} from "react";
+import { CartProvider } from "./contexts/CartContext";
 
 function App() {
-
-  const [items, setItems] = useState([]);
-
-  const dialog = useRef();
-
-  function addItem(item){
-    setItems(prevItems => 
-      [...prevItems, {...item, amount: 1}]);
-  }
-
-  function removeItem(item) {
-    setItems((prevItems) => {
-      const itemIndex = prevItems.findIndex((i) => i.id === item.id);
-  
-      const updatedItems = [...prevItems];
-  
-      if (updatedItems[itemIndex].amount > 1) {
-        updatedItems[itemIndex] = {
-          ...updatedItems[itemIndex],
-          amount: updatedItems[itemIndex].amount - 1,
-        };
-      } else {
-        updatedItems.splice(itemIndex, 1);
-      }
-  
-      return updatedItems;
-    });
-  }
-
-  function clearItems() {
-    setItems([]);
-  }
+  const dialogRef = useRef();
 
   return (
-    <>
-    <Modal items={items} ref={dialog} addItem={addItem} removeItem={removeItem} clearItems={clearItems}/>
-    <Header items={items} showModal={() => dialog.current.open()}/>
-      <Meals addItem={addItem}/>
-    </>
+    <CartProvider>
+      <Modal ref={dialogRef} />
+      <Header showModal={() => dialogRef.current.open()} />
+      <Meals />
+    </CartProvider>
   );
 }
 

@@ -1,6 +1,8 @@
 import ImageSRC from '../assets/logo.jpg'
+import {useCart} from "../contexts/CartContext";
 
-export default function Header({items, showModal}){
+export default function Header({showModal}){
+    const {items} = useCart();
     
     return(
         <header id="main-header">
